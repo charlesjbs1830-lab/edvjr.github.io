@@ -3,70 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Ociosidade | Módulo Operacional</title>
+    <title>Kamiclock Interno | EDV Jr.</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="dashboard-wrapper">
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>EDV Jr.</h2>
-                <p>LegalaaS & Analytics</p>
-            </div>
-            <nav>
-                <a href="#" class="active">Registro de Horas</a>
-                <a href="https://www.edvjr.com.br/" target="_blank">Portal Principal</a>
-            </nav>
-        </aside>
+    <div class="app-container">
+        <!-- Tela de Autenticação / Login Institucional -->
+        <section id="loginSection" class="panel">
+            <h2>Autenticação de Membro</h2>
+            <p>Insira seu e-mail institucional para sincronizar os dados do Google Drive.</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="emailMembro">E-mail Google Workspace:</label>
+                    <input type="email" id="emailMembro" required placeholder="membro@edvjr.com.br">
+                </div>
+                <button type="submit">Autenticar e Sincronizar</button>
+            </form>
+        </section>
 
-        <main class="main-content">
-            <header>
-                <h1>Painel de Capacidade Operacional</h1>
-                <p>Monitoramento de entregas e cálculo de ociosidade da equipe</p>
+        <!-- Painel Principal de Lançamento (Oculto até o login) -->
+        <section id="dashboardSection" class="panel hidden">
+            <header class="user-header">
+                <div>
+                    <h2>Registro de Atividades</h2>
+                    <p id="welcomeUser">Sincronizado com: </p>
+                </div>
+                <button id="btnLogout" class="btn-secondary">Desconectar</button>
             </header>
 
-            <section class="card-grid">
-                <div class="card form-card">
-                    <h2>Lançamento de Atividade</h2>
-                    <form id="timeLogForm">
-                        <div class="form-group">
-                            <label for="membro">Nome do Membro:</label>
-                            <input type="text" id="membro" required placeholder="Nome completo">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="projeto">Frente / Projeto:</label>
-                            <select id="projeto" required>
-                                <option value="">Selecione a frente...</option>
-                                <option value="Jurídico / Automação">Jurídico / Automação</option>
-                                <option value="Comercial">Comercial</option>
-                                <option value="Gestão Interna">Gestão Interna</option>
-                                <option value="Projetos Externos">Projetos Externos</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="horasExecutadas">Horas Dedicadas:</label>
-                            <input type="number" id="horasExecutadas" min="1" max="40" required placeholder="Ex: 15">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="horasEsperadas">Capacidade Esperada (Meta):</label>
-                            <input type="number" id="horasEsperadas" min="1" max="40" required placeholder="Ex: 20">
-                        </div>
-
-                        <button type="submit" id="btnProcessar">Calcular e Registrar</button>
-                    </form>
+            <form id="activityForm">
+                <div class="form-group">
+                    <label for="setor">Setor de Atuação:</label>
+                    <select id="setor" required>
+                        <option value="">Selecione o setor...</option>
+                        <option value="Comercial">Comercial</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Projetos">Projetos</option>
+                    </select>
                 </div>
 
-                <div class="card metrics-card">
-                    <h2>Indicadores em Tempo Real</h2>
-                    <div id="resultadoMetricas" class="metrics-placeholder">
-                        <p class="placeholder-text">Aguardando submissão de dados para cálculo da ociosidade...</p>
+                <div class="form-group">
+                    <label for="descricaoServico">Descrição Analítica do Serviço:</label>
+                    <textarea id="descricaoServico" rows="3" required placeholder="Detalhe a atividade executada..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tempoDedicado">Tempo Dedicado:</label>
+                        <input type="number" id="tempoDedicado" min="1" required placeholder="Ex: 90">
+                    </div>
+                    <div class="form-group">
+                        <label for="unidadeTempo">Unidade:</label>
+                        <select id="unidadeTempo" required>
+                            <option value="minutos">Minutos</option>
+                            <option value="horas">Horas</option>
+                        </select>
                     </div>
                 </div>
-            </section>
-        </main>
+
+                <button type="submit" id="btnSalvar">Registrar Atividade no Banco</button>
+            </form>
+
+            <div id="statusFeedback" class="hidden"></div>
+        </section>
     </div>
 
     <script src="script.js"></script>
