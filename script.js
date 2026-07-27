@@ -1,61 +1,125 @@
+// ==========================================
+// CONFIGURAÇÃO DE AMBIENTE E ESTADO
+// ==========================================
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzjY9CKxj_zorES0VldGOsQHel21q0qIEMZNFXZa2HjJL8R3dLueiLQQB3dT9sWd9TOwA/exec";
 let membroLogado = null;
 
-// Simulação de login e validação com o Google Drive/Workspace da EJ
+// Matriz de Controle de Acesso Estrito (Whitelist)
+const membrosAutorizados = {
+    "charles.junior@edvjr.com.br": "Charles",
+    "alice.mizuki@edvjr.com.br": "Alice Mizuki",
+    "alice.ney@edvjr.com.br": "Alice Ney",
+    "alicia.athayde@edvjr.com.br": "Alicia",
+    "aline.tartaglia@edvjr.com.br": "Aline",
+    "amanda.bede@edvjr.com.br": "Amanda",
+    "karolina.krause@edvjr.com.br": "Ana Karolina",
+    "estevao.coutinho@edvjr.com.br": "Estevão",
+    "evelyn.roldi@edvjr.com.br": "Evelyn",
+    "gabriel.orienrac@edvjr.com.br": "Cachorrão",
+    "giulia.moulin@edvjr.com.br": "Giulia",
+    "guilherme.borges@edvjr.com.br": "Guilherme",
+    "isadora.epichin@edvjr.com.br": "Isadora",
+    "joaop.lecco@edvjr.com.br": "Chillibão",
+    "marialice.bacelar@edvjr.com.br": "Maria Alice",
+    "mariaeduarda.dias@edvjr.com.br": "Maria Eduarda",
+    "maria.teixeira@edvjr.com.br": "Maria Luyza",
+    "marina.moretto@edvjr.com.br": "Marina",
+    "marllon.oliveira@edvjr.com.br": "Marllon",
+    "pedro.barros@edvjr.com.br": "Pedro Barros",
+    "renato.moura@edvjr.com.br": "Renato",
+    "samuel.garcia@edvjr.com.br": "Samuel",
+    "thais.junger@edvjr.com.br": "Thais"
+};
+
+// ==========================================
+// 1. SISTEMA DE AUTENTICAÇÃO E CONTROLE DE ACESSO
+// ==========================================
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    const email = document.getElementById('emailMembro').value.trim();
+    
+    // Captura e sanitiza o vetor de entrada
+    const email = document.getElementById('emailMembro').value.trim().toLowerCase();
 
-    // Validação restrita ao domínio da EJ ou diretório autorizado
-    if (!email.endsWith('@edvjr.com.br') && !email.includes('admin')) {
-        alert('Acesso negado. Utilize o e-mail corporativo vinculado ao Google Workspace.');
+    // Validação de segurança primária via Whitelist
+    if (!membrosAutorizados.hasOwnProperty(email)) {
+        alert('Acesso negado. Credencial não consta na matriz de autorização do sistema.');
         return;
     }
 
+    // Definição do estado de sessão com injeção do nome mapeado
     membroLogado = email;
-    document.getElementById('welcomeUser').textContent = `Sincronizado com: ${membroLogado}`;
+    const nomeMembro = membrosAutorizados[email];
+    document.getElementById('welcomeUser').textContent = `Sessão ativa vinculada a: ${nomeMembro}`;
     
-    // Alterna visibilidade dos painéis
+    // Transição de interface
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('dashboardSection').classList.remove('hidden');
 });
 
-// Desconexão
+// ==========================================
+// 2. ENCERRAMENTO DE SESSÃO
+// ==========================================
 document.getElementById('btnLogout').addEventListener('click', function() {
     membroLogado = null;
     document.getElementById('loginForm').reset();
+    
     document.getElementById('dashboardSection').classList.add('hidden');
     document.getElementById('loginSection').classList.remove('hidden');
 });
 
-// Envio da Atividade com padronização temporal
-document.getElementById('activityForm').addEventListener('submit', function(event) {
+// ==========================================
+// 3. PROCESSAMENTO TEMPORAL E TRANSMISSÃO HTTP
+// ==========================================
+document.getElementById('activityForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
-    const setor = document.getElementById('setor').value;
-    const descricao = document.getElementById('descricaoServico').value;
+    const btnSalvar = document.getElementById('btnSalvar');
+    const statusDiv = document.getElementById('statusFeedback');
+    
+    // Extração e normalização temporal
     const valorTempo = parseFloat(document.getElementById('tempoDedicado').value);
     const unidade = document.getElementById('unidadeTempo').value;
-    const statusDiv = document.getElementById('statusFeedback');
+    const tempoEmMinutos = unidade === 'horas' ? (valorTempo * 60) : valorTempo;
 
-    // Normalização estrita para minutos (garantindo precisão analítica no banco de dados)
-    const tempoEmMinutos = unidade === 'horas' ? valorTempo * 60 : valorTempo;
-
+    // Estruturação do objeto JSON conforme exigência do backend
     const payload = {
         memberEmail: membroLogado,
-        sector: setor,
-        description: descricao,
+        sector: document.getElementById('setor').value.trim(),
+        description: document.getElementById('descricaoServico').value.trim(),
         durationMinutes: tempoEmMinutos,
         timestamp: new Date().toISOString()
     };
 
-    console.log("Payload filtrado e pronto para submissão ao Apps Script / Google Sheets:", payload);
+    // Bloqueio de interface para prevenção de concorrência
+    btnSalvar.textContent = "Processando transação...";
+    btnSalvar.disabled = true;
 
-    statusDiv.textContent = "Atividade registrada e injetada no banco de dados do seu perfil.";
-    statusDiv.classList.remove('hidden');
+    try {
+        // Disparo assíncrono para o endpoint do Google Apps Script
+        await fetch(URL_APPS_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-    document.getElementById('activityForm').reset();
+        // Feedback de consolidação
+        statusDiv.textContent = "Registro consolidado e injetado na base de dados.";
+        statusDiv.classList.remove('hidden');
+        document.getElementById('activityForm').reset();
 
-    setTimeout(() => {
-        statusDiv.classList.add('hidden');
-    }, 4000);
+    } catch (error) {
+        console.error("Exceção crítica na camada de transporte:", error);
+        alert("Falha na comunicação com o servidor. Verifique a infraestrutura de rede.");
+    } finally {
+        // Restauração do estado neutro da interface
+        btnSalvar.textContent = "Registrar Atividade no Banco";
+        btnSalvar.disabled = false;
+        
+        setTimeout(() => {
+            statusDiv.classList.add('hidden');
+        }, 4000);
+    }
 });
