@@ -1,50 +1,49 @@
-document.getElementById('contractForm').addEventListener('submit', function(event) {
+document.getElementById('timeLogForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const contratante = document.getElementById('contratante').value;
-    const cnpj = document.getElementById('cnpj').value;
-    const valor = document.getElementById('valor').value;
-    const btn = document.getElementById('btnGerar');
-    const statusDiv = document.getElementById('statusMessage');
+    const membro = document.getElementById('membro').value;
+    const projeto = document.getElementById('projeto').value;
+    const executadas = parseFloat(document.getElementById('horasExecutadas').value);
+    const esperadas = parseFloat(document.getElementById('horasEsperadas').value);
+    const containerMetricas = document.getElementById('resultadoMetricas');
 
-    // Desativa o botão para evitar envio duplicado
-    btn.disabled = true;
-    btn.textContent = 'Transmitindo para a nuvem...';
+    // Validação matemática de ociosidade
+    // Ociosidade (%) = (1 - (Executadas / Esperadas)) * 100
+    let ociosidade = 0;
+    if (esperadas > 0) {
+        ociosidade = (1 - (executadas / esperadas)) * 100;
+        if (ociosidade < 0) ociosidade = 0; // Se entregou mais do que o esperado
+    }
 
     const payload = {
-        client: contratante,
-        taxId: cnpj,
-        amount: valor,
+        member: membro,
+        project: projeto,
+        executedHours: executadas,
+        expectedHours: esperadas,
+        idlenessRate: ociosidade.toFixed(2),
         timestamp: new Date().toISOString()
     };
 
-    // URL gerada após publicar o seu Google Apps Script como Web App
-    const WEB_APP_URL = 'COLOQUE_AQUI_A_URL_DO_SEU_WEB_APP_DO_APPS_SCRIPT';
+    console.log("Payload computado:", payload);
 
-    fetch(WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Necessário para requisições cross-origin simples do GitHub Pages para o Google
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(() => {
-        statusDiv.textContent = "Dados transmitidos com sucesso. Minuta enfileirada no motor de geração.";
-        statusDiv.classList.remove('hidden');
+    // Renderiza o resultado visual dinamicamente no painel lateral
+    containerMetricas.innerHTML = `
+        <div style="width: 100%; text-align: left;">
+            <div class="metric-box">
+                <span>Membro Analisado</span>
+                <strong>${membro}</strong>
+            </div>
+            <div class="metric-box">
+                <span>Frente Atendida</span>
+                <strong>${projeto}</strong>
+            </div>
+            <div class="metric-box" style="border-color: ${ociosidade > 20 ? '#fca5a5' : '#bbf7d0'}; background-color: ${ociosidade > 20 ? '#fef2f2' : '#f0fdf4'};">
+                <span>Índice de Capacidade Ociosa</span>
+                <strong style="color: ${ociosidade > 20 ? '#dc2626' : '#16a34a'};">${ociosidade.toFixed(1)}%</strong>
+            </div>
+        </div>
+    `;
 
-        document.getElementById('contractForm').reset();
-        btn.disabled = false;
-        btn.textContent = 'Gerar Minuta no Sistema';
-    })
-    .catch(error => {
-        console.error("Erro na transmissão:", error);
-        statusDiv.textContent = "Erro crítico na comunicação com o servidor.";
-        statusDiv.classList.remove('hidden');
-        statusDiv.style.backgroundColor = "#ffeeef";
-        statusDiv.style.color = "#990000";
-        
-        btn.disabled = false;
-        btn.textContent = 'Gerar Minuta no Sistema';
-    });
+    // Reseta formulário mantendo dados prontos para integração com Google Sheets via Apps Script
+    document.getElementById('timeLogForm').reset();
 });
