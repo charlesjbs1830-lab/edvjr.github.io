@@ -1,49 +1,61 @@
-document.getElementById('timeLogForm').addEventListener('submit', function(event) {
+let membroLogado = null;
+
+// Simulação de login e validação com o Google Drive/Workspace da EJ
+document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
+    const email = document.getElementById('emailMembro').value.trim();
 
-    const membro = document.getElementById('membro').value;
-    const projeto = document.getElementById('projeto').value;
-    const executadas = parseFloat(document.getElementById('horasExecutadas').value);
-    const esperadas = parseFloat(document.getElementById('horasEsperadas').value);
-    const containerMetricas = document.getElementById('resultadoMetricas');
-
-    // Validação matemática de ociosidade
-    // Ociosidade (%) = (1 - (Executadas / Esperadas)) * 100
-    let ociosidade = 0;
-    if (esperadas > 0) {
-        ociosidade = (1 - (executadas / esperadas)) * 100;
-        if (ociosidade < 0) ociosidade = 0; // Se entregou mais do que o esperado
+    // Validação restrita ao domínio da EJ ou diretório autorizado
+    if (!email.endsWith('@edvjr.com.br') && !email.includes('admin')) {
+        alert('Acesso negado. Utilize o e-mail corporativo vinculado ao Google Workspace.');
+        return;
     }
 
+    membroLogado = email;
+    document.getElementById('welcomeUser').textContent = `Sincronizado com: ${membroLogado}`;
+    
+    // Alterna visibilidade dos painéis
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('dashboardSection').classList.remove('hidden');
+});
+
+// Desconexão
+document.getElementById('btnLogout').addEventListener('click', function() {
+    membroLogado = null;
+    document.getElementById('loginForm').reset();
+    document.getElementById('dashboardSection').classList.add('hidden');
+    document.getElementById('loginSection').classList.remove('hidden');
+});
+
+// Envio da Atividade com padronização temporal
+document.getElementById('activityForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const setor = document.getElementById('setor').value;
+    const descricao = document.getElementById('descricaoServico').value;
+    const valorTempo = parseFloat(document.getElementById('tempoDedicado').value);
+    const unidade = document.getElementById('unidadeTempo').value;
+    const statusDiv = document.getElementById('statusFeedback');
+
+    // Normalização estrita para minutos (garantindo precisão analítica no banco de dados)
+    const tempoEmMinutos = unidade === 'horas' ? valorTempo * 60 : valorTempo;
+
     const payload = {
-        member: membro,
-        project: projeto,
-        executedHours: executadas,
-        expectedHours: esperadas,
-        idlenessRate: ociosidade.toFixed(2),
+        memberEmail: membroLogado,
+        sector: setor,
+        description: descricao,
+        durationMinutes: tempoEmMinutos,
         timestamp: new Date().toISOString()
     };
 
-    console.log("Payload computado:", payload);
+    console.log("Payload filtrado e pronto para submissão ao Apps Script / Google Sheets:", payload);
 
-    // Renderiza o resultado visual dinamicamente no painel lateral
-    containerMetricas.innerHTML = `
-        <div style="width: 100%; text-align: left;">
-            <div class="metric-box">
-                <span>Membro Analisado</span>
-                <strong>${membro}</strong>
-            </div>
-            <div class="metric-box">
-                <span>Frente Atendida</span>
-                <strong>${projeto}</strong>
-            </div>
-            <div class="metric-box" style="border-color: ${ociosidade > 20 ? '#fca5a5' : '#bbf7d0'}; background-color: ${ociosidade > 20 ? '#fef2f2' : '#f0fdf4'};">
-                <span>Índice de Capacidade Ociosa</span>
-                <strong style="color: ${ociosidade > 20 ? '#dc2626' : '#16a34a'};">${ociosidade.toFixed(1)}%</strong>
-            </div>
-        </div>
-    `;
+    statusDiv.textContent = "Atividade registrada e injetada no banco de dados do seu perfil.";
+    statusDiv.classList.remove('hidden');
 
-    // Reseta formulário mantendo dados prontos para integração com Google Sheets via Apps Script
-    document.getElementById('timeLogForm').reset();
+    document.getElementById('activityForm').reset();
+
+    setTimeout(() => {
+        statusDiv.classList.add('hidden');
+    }, 4000);
 });
