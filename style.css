@@ -1,0 +1,107 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', 'Liberation Sans', sans-serif;
+}
+
+body {
+    background-color: #f4f5f7;
+    color: #1f2937;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+header p {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin-top: 4px;
+}
+
+.card {
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+    font-size: 1.125rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+button:hover {
+    background-color: #1f2937;
+}
+
+.hidden {
+    display: none;
+}
+
+#statusMessage {
+    margin-top: 16px;
+    padding: 12px;
+    background-color: #ecfdf5;
+    color: #065f46;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    text-align: center;
+}
