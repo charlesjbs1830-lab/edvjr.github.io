@@ -3,70 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kamiclock Interno | EDV Jr.</title>
+    <title>Painel Operacional | EDV Jr.</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Tela de Autenticação / Login Institucional -->
-        <section id="loginSection" class="panel">
-            <h2>Autenticação de Membro</h2>
-            <p>Insira seu e-mail institucional para sincronizar os dados do Google Drive.</p>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="emailMembro">E-mail Google Workspace:</label>
-                    <input type="email" id="emailMembro" required placeholder="membro@edvjr.com.br">
-                </div>
-                <button type="submit">Autenticar e Sincronizar</button>
-            </form>
-        </section>
+    <!-- Cabeçalho Institucional Idêntico ao Portal -->
+    <header class="site-header">
+        <div class="nav-container">
+            <div class="logo-area">
+                <span class="logo-text">EDV <small>SERVIÇOS JURÍDICOS</small></span>
+            </div>
+            <nav class="nav-links">
+                <a href="https://www.edvjr.com.br/" target="_blank">Início</a>
+                <a href="https://www.edvjr.com.br/#sobre" target="_blank">Sobre Nós</a>
+                <a href="https://www.edvjr.com.br/#servicos" target="_blank">Serviços</a>
+                <a href="#" class="active-nav">Painel Kamiclock é meu ovo</a>
+            </nav>
+            <div class="cta-area">
+                <a href="https://www.edvjr.com.br/#contato" target="_blank" class="btn-outline">ENTRAR EM CONTATO</a>
+            </div>
+        </div>
+    </header>
 
-        <!-- Painel Principal de Lançamento (Oculto até o login) -->
-        <section id="dashboardSection" class="panel hidden">
-            <header class="user-header">
-                <div>
-                    <h2>Registro de Atividades</h2>
-                    <p id="welcomeUser">Sincronizado com: </p>
+    <main class="main-body">
+        <div class="container-central">
+            
+            <!-- Tela de Login / Autenticação -->
+            <section id="loginSection" class="card-institutional">
+                <div class="card-header-custom">
+                    <h2>Autenticação de Membro</h2>
+                    <p>Sincronize seu e-mail corporativo para carregar os dados do Google Drive.</p>
                 </div>
-                <button id="btnLogout" class="btn-secondary">Desconectar</button>
-            </header>
-
-            <form id="activityForm">
-                <div class="form-group">
-                    <label for="setor">Setor de Atuação:</label>
-                    <select id="setor" required>
-                        <option value="">Selecione o setor...</option>
-                        <option value="Comercial">Comercial</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Projetos">Projetos</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="descricaoServico">Descrição Analítica do Serviço:</label>
-                    <textarea id="descricaoServico" rows="3" required placeholder="Detalhe a atividade executada..."></textarea>
-                </div>
-
-                <div class="form-row">
+                <form id="loginForm">
                     <div class="form-group">
-                        <label for="tempoDedicado">Tempo Dedicado:</label>
-                        <input type="number" id="tempoDedicado" min="1" required placeholder="Ex: 90">
+                        <label for="emailMembro">E-mail Google Workspace</label>
+                        <input type="email" id="emailMembro" required placeholder="membro@edvjr.com.br">
                     </div>
-                    <div class="form-group">
-                        <label for="unidadeTempo">Unidade:</label>
-                        <select id="unidadeTempo" required>
-                            <option value="minutos">Minutos</option>
-                            <option value="horas">Horas</option>
-                        </select>
+                    <button type="submit" class="btn-primary-custom">Autenticar e Sincronizar</button>
+                </form>
+            </section>
+
+            <!-- Painel Principal de Lançamento (Oculto até autenticação) -->
+            <section id="dashboardSection" class="card-institutional hidden">
+                <div class="user-top-bar">
+                    <div>
+                        <h2>Registro de Produtividade</h2>
+                        <p id="welcomeUser" class="subtext-user">Sincronizado com: </p>
                     </div>
+                    <button id="btnLogout" class="btn-secundario-custom">Desconectar</button>
                 </div>
 
-                <button type="submit" id="btnSalvar">Registrar Atividade no Banco</button>
-            </form>
+                <form id="activityForm">
+                    <div class="form-group">
+                        <label for="setor">Setor de Atuação</label>
+<select id="setor" required>
+    <option value="">Selecione o setor...</option>
+    <option value="Comercial">Comercial</option>
+    <option value="Marketing">Marketing</option>
+    <option value="Projetos">Projetos</option>
+    <option value="VPGG">VPGG</option>
+    <option value="Diretoria/Projetos">Diretoria/Projetos</option>
+</select>
+                    </div>
 
-            <div id="statusFeedback" class="hidden"></div>
-        </section>
-    </div>
+                    <div class="form-group">
+                        <label for="descricaoServico">Descrição Analítica do Serviço</label>
+                        <textarea id="descricaoServico" rows="4" required placeholder="Detalhe a atividade executada..."></textarea>
+                    </div>
+
+                    <div class="form-grid-tempo">
+                        <div class="form-group">
+                            <label for="tempoDedicado">Tempo Dedicado</label>
+                            <input type="number" id="tempoDedicado" min="1" required placeholder="Ex: 90">
+                        </div>
+                        <div class="form-group">
+                            <label for="unidadeTempo">Unidade</label>
+                            <select id="unidadeTempo" required>
+                                <option value="minutos">Minutos</option>
+                                <option value="horas">Horas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSalvar" class="btn-primary-custom">Registrar Atividade no Banco</button>
+                </form>
+
+                <div id="statusFeedback" class="hidden feedback-box"></div>
+            </section>
+
+        </div>
+    </main>
 
     <script src="script.js"></script>
 </body>
