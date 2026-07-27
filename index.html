@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Operacional | LegalaaS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Painel de Controle Operacional</h1>
+            <p>Gerenciamento e Automação de Documentos</p>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>Geração Automatizada de Contratos</h2>
+                <form id="contractForm">
+                    <div class="form-group">
+                        <label for="contratante">Nome da Contratante:</label>
+                        <input type="text" id="contratante" required placeholder="Ex: Empresa Exemplo Ltda">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cnpj">CNPJ:</label>
+                        <input type="text" id="cnpj" required placeholder="00.000.000/0001-00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valor">Valor do Serviço (R$):</label>
+                        <input type="number" id="valor" required placeholder="5000.00">
+                    </div>
+
+                    <button type="submit" id="btnGerar">Gerar Minuta no Sistema</button>
+                </form>
+                <div id="statusMessage" class="hidden"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
