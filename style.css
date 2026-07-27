@@ -2,52 +2,102 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', 'Liberation Sans', sans-serif;
+    font-family: 'Liberation Sans', 'Roboto', sans-serif;
 }
 
 body {
-    background-color: #f4f5f7;
-    color: #1f2937;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: #0f172a;
+    color: #334155;
     min-height: 100vh;
 }
 
-.container {
-    width: 100%;
-    max-width: 600px;
-    padding: 20px;
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: #1e293b;
+    color: #f8fafc;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #38bdf8;
+}
+
+.brand p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    margin-bottom: 32px;
+}
+
+nav a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+}
+
+nav a.active, nav a:hover {
+    background-color: #334155;
+    color: #ffffff;
+}
+
+.main-content {
+    flex: 1;
+    padding: 40px;
+    background-color: #f8fafc;
+    overflow-y: auto;
 }
 
 header {
-    margin-bottom: 24px;
-    text-align: center;
+    margin-bottom: 32px;
 }
 
 header h1 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: #111827;
+    color: #0f172a;
 }
 
 header p {
     font-size: 0.875rem;
-    color: #4b5563;
-    margin-top: 4px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
 }
 
 .card {
     background: #ffffff;
-    padding: 32px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
 .card h2 {
-    font-size: 1.125rem;
-    margin-bottom: 20px;
+    font-size: 1rem;
     font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
 }
 
 .form-group {
@@ -56,52 +106,76 @@ header p {
 
 label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     margin-bottom: 6px;
-    color: #374151;
+    color: #475569;
 }
 
-input {
+input, select {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
     font-size: 0.875rem;
+    background-color: #fff;
+    color: #0f172a;
 }
 
-input:focus {
+input:focus, select:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
 }
 
 button {
     width: 100%;
     padding: 12px;
-    background-color: #111827;
+    background-color: #0f172a;
     color: #ffffff;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     margin-top: 8px;
+    transition: background 0.2s;
 }
 
 button:hover {
-    background-color: #1f2937;
+    background-color: #1e293b;
 }
 
-.hidden {
-    display: none;
-}
-
-#statusMessage {
-    margin-top: 16px;
-    padding: 12px;
-    background-color: #ecfdf5;
-    color: #065f46;
-    border-radius: 4px;
-    font-size: 0.875rem;
+.metrics-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 220px;
     text-align: center;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    border: 2px dashed #e2e8f0;
+    border-radius: 8px;
+}
+
+.metric-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.metric-box span {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.metric-box strong {
+    font-size: 1.5rem;
+    color: #0f172a;
 }
