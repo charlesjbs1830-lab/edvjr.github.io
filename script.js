@@ -68,7 +68,7 @@ document.getElementById('btnLogout').addEventListener('click', function() {
 });
 
 // ==========================================
-// 3. PROCESSAMENTO TEMPORAL E TRANSMISSÃO HTTP
+// 3. PROCESSAMENTO TEMPORAL E TRANSMISSÃO HTTP (CORRIGIDO)
 // ==========================================
 document.getElementById('activityForm').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -81,7 +81,7 @@ document.getElementById('activityForm').addEventListener('submit', async functio
     const unidade = document.getElementById('unidadeTempo').value;
     const tempoEmMinutos = unidade === 'horas' ? (valorTempo * 60) : valorTempo;
 
-    // Estruturação do objeto JSON conforme exigência do backend
+    // Payload estruturado
     const payload = {
         memberEmail: membroLogado,
         sector: document.getElementById('setor').value.trim(),
@@ -95,24 +95,28 @@ document.getElementById('activityForm').addEventListener('submit', async functio
     btnSalvar.disabled = true;
 
     try {
-        // Disparo assíncrono para o endpoint do Google Apps Script
-        await fetch(URL_APPS_SCRIPT, {
+        // Disparo assíncrono compatível com Google Apps Script
+        const response = await fetch(URL_APPS_SCRIPT, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'text/plain;charset=utf-8' // Compatível com redirecionamento do Google sem quebrar CORS
             },
             body: JSON.stringify(payload)
         });
 
         // Feedback de consolidação
         statusDiv.textContent = "Registro consolidado e injetado na base de dados.";
+        statusDiv.style.backgroundColor = "#f0fdf4";
+        statusDiv.style.color = "#16a34a";
         statusDiv.classList.remove('hidden');
         document.getElementById('activityForm').reset();
 
     } catch (error) {
         console.error("Exceção crítica na camada de transporte:", error);
-        alert("Falha na comunicação com o servidor. Verifique a infraestrutura de rede.");
+        statusDiv.textContent = "Erro ao registrar. Tente novamente.";
+        statusDiv.style.backgroundColor = "#fef2f2";
+        statusDiv.style.color = "#dc2626";
+        statusDiv.classList.remove('hidden');
     } finally {
         // Restauração do estado neutro da interface
         btnSalvar.textContent = "Registrar Atividade no Banco";
