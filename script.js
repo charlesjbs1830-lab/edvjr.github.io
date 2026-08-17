@@ -2,6 +2,7 @@
 // CONFIGURAÇÃO DE AMBIENTE E ESTADO
 // ==========================================
 const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzjY9CKxj_zorES0VldGOsQHel21q0qIEMZNFXZa2HjJL8R3dLueiLQQB3dT9sWd9TOwA/exec";
+const CHAVE_SESSAO = 'kamiclock_sessao_email';
 let membroLogado = null;
 
 // Matriz de Controle de Acesso Estrito (Whitelist)
@@ -34,48 +35,98 @@ const membrosAutorizados = {
 // ==========================================
 // 1. SISTEMA DE AUTENTICAÇÃO E CONTROLE DE ACESSO
 // ==========================================
+function entrarComoMembro(email) {
+    membroLogado = email;
+    const nomeMembro = membrosAutorizados[email];
+    document.getElementById('welcomeUser').textContent = `Sessão ativa vinculada a: ${nomeMembro}`;
+    document.getElementById('loginSection').classList.add('hidden');
+    document.getElementById('dashboardSection').classList.remove('hidden');
+    renderHistorico();
+}
+
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    
+
     // Captura e sanitiza o vetor de entrada
     const email = document.getElementById('emailMembro').value.trim().toLowerCase();
 
     // Validação de segurança primária via Whitelist
+    // (isso roda no navegador, então é um filtro de conveniência, não uma
+    // proteção real — qualquer pessoa com o console aberto veria a lista.
+    // Para dados sensíveis, a autenticação de verdade precisaria acontecer
+    // no backend, ex: Google OAuth via Apps Script.)
     if (!membrosAutorizados.hasOwnProperty(email)) {
         alert('Acesso negado. Credencial não consta na matriz de autorização do sistema.');
         return;
     }
 
-    // Definição do estado de sessão com injeção do nome mapeado
-    membroLogado = email;
-    const nomeMembro = membrosAutorizados[email];
-    document.getElementById('welcomeUser').textContent = `Sessão ativa vinculada a: ${nomeMembro}`;
-    
-    // Transição de interface
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('dashboardSection').classList.remove('hidden');
+    localStorage.setItem(CHAVE_SESSAO, email);
+    entrarComoMembro(email);
 });
+
+// Restaura a sessão se o membro já tinha autenticado antes neste navegador
+const sessaoSalva = localStorage.getItem(CHAVE_SESSAO);
+if (sessaoSalva && membrosAutorizados.hasOwnProperty(sessaoSalva)) {
+    entrarComoMembro(sessaoSalva);
+}
 
 // ==========================================
 // 2. ENCERRAMENTO DE SESSÃO
 // ==========================================
 document.getElementById('btnLogout').addEventListener('click', function() {
     membroLogado = null;
+    localStorage.removeItem(CHAVE_SESSAO);
     document.getElementById('loginForm').reset();
-    
+
     document.getElementById('dashboardSection').classList.add('hidden');
     document.getElementById('loginSection').classList.remove('hidden');
 });
 
 // ==========================================
-// 3. PROCESSAMENTO TEMPORAL E TRANSMISSÃO HTTP (CORRIGIDO)
+// 3. HISTÓRICO LOCAL DA SESSÃO (feedback visual apenas —
+//    a fonte de verdade continua sendo a planilha, via Apps Script)
+// ==========================================
+let historicoSessao = [];
+
+function renderHistorico() {
+    const lista = document.getElementById('listaHistorico');
+    if (!lista) return;
+    lista.innerHTML = '';
+
+    if (historicoSessao.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'item-vazio';
+        li.textContent = 'Nenhum registro ainda nesta sessão.';
+        lista.appendChild(li);
+        return;
+    }
+
+    historicoSessao.forEach((item) => {
+        const li = document.createElement('li');
+
+        const spanSetor = document.createElement('span');
+        spanSetor.className = 'item-setor';
+        spanSetor.textContent = item.sector;
+
+        const spanTempo = document.createElement('span');
+        spanTempo.className = 'item-tempo';
+        spanTempo.textContent = item.durationMinutes + ' min';
+
+        li.appendChild(spanSetor);
+        li.appendChild(spanTempo);
+        lista.appendChild(li);
+    });
+}
+
+// ==========================================
+// 4. PROCESSAMENTO TEMPORAL E TRANSMISSÃO HTTP
 // ==========================================
 document.getElementById('activityForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const btnSalvar = document.getElementById('btnSalvar');
     const statusDiv = document.getElementById('statusFeedback');
-    
+
     const valorTempo = parseFloat(document.getElementById('tempoDedicado').value);
     const unidade = document.getElementById('unidadeTempo').value;
     const tempoEmMinutos = unidade === 'horas' ? (valorTempo * 60) : valorTempo;
@@ -92,35 +143,42 @@ document.getElementById('activityForm').addEventListener('submit', async functio
     btnSalvar.disabled = true;
 
     try {
-        // A estratégia 'no-cors' permite que o fetch complete 
-        // mesmo que o Google redirecione (evitando a falha de CORS no front-end)
-        await fetch(URL_APPS_SCRIPT, {
+        // Content-Type "text/plain" (em vez de "application/json") faz o
+        // navegador tratar isso como "requisição simples", sem preflight
+        // OPTIONS — que é exatamente o que o Apps Script Web App não sabe
+        // responder e travava a chamada. Sem preflight, a chamada NÃO
+        // precisa mais do modo 'no-cors', e dá pra ler a resposta de
+        // verdade em vez de simplesmente assumir sucesso.
+        const resposta = await fetch(URL_APPS_SCRIPT, {
             method: 'POST',
-            mode: 'no-cors', 
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
         });
 
+        const resultado = await resposta.json();
+
+        if (!resultado || resultado.success !== true) {
+            throw new Error((resultado && resultado.error) || 'O servidor não confirmou o salvamento.');
+        }
+
         statusDiv.textContent = "Registro enviado com sucesso.";
-        statusDiv.style.backgroundColor = "#f0fdf4";
-        statusDiv.style.color = "#16a34a";
+        statusDiv.className = "feedback-box success";
         statusDiv.classList.remove('hidden');
+
+        historicoSessao.unshift(payload);
+        renderHistorico();
         document.getElementById('activityForm').reset();
 
     } catch (error) {
-        // O modo 'no-cors' não lê o corpo da resposta, então assumimos sucesso 
-        // caso não haja erro de rede óbvio.
-        statusDiv.textContent = "Registro enviado."; 
-        statusDiv.style.backgroundColor = "#f0fdf4";
-        statusDiv.style.color = "#16a34a";
+        statusDiv.textContent = "Não foi possível confirmar o envio: " + error.message;
+        statusDiv.className = "feedback-box error";
         statusDiv.classList.remove('hidden');
-        document.getElementById('activityForm').reset();
     } finally {
         btnSalvar.textContent = "Registrar Atividade no Banco";
         btnSalvar.disabled = false;
-        
+
         setTimeout(() => {
             statusDiv.classList.add('hidden');
-        }, 4000);
+        }, 5000);
     }
 });
