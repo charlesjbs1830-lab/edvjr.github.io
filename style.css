@@ -250,6 +250,47 @@ input:focus, select:focus, textarea:focus {
     padding-left: 0;
 }
 
+/* Rotina Semanal (checkboxes de dias) */
+.dias-semana-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 8px;
+}
+.dia-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 6px;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: none;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.dia-checkbox:has(input:checked) {
+    background-color: #0b1d3a;
+    border-color: #0b1d3a;
+    color: #ffffff;
+}
+.dia-checkbox input {
+    width: auto;
+    accent-color: #0b1d3a;
+}
+.rotina-nota {
+    margin-top: 18px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+#rotinaSection {
+    margin-top: 24px;
+}
+
 /* Responsivo */
 @media (max-width: 600px) {
     .site-header { padding: 16px 20px; }
