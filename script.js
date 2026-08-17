@@ -41,6 +41,7 @@ function entrarComoMembro(email) {
     document.getElementById('welcomeUser').textContent = `Sessão ativa vinculada a: ${nomeMembro}`;
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('dashboardSection').classList.remove('hidden');
+    document.getElementById('rotinaSection').classList.remove('hidden');
     renderHistorico();
 }
 
@@ -79,6 +80,7 @@ document.getElementById('btnLogout').addEventListener('click', function() {
     document.getElementById('loginForm').reset();
 
     document.getElementById('dashboardSection').classList.add('hidden');
+    document.getElementById('rotinaSection').classList.add('hidden');
     document.getElementById('loginSection').classList.remove('hidden');
 });
 
@@ -179,6 +181,66 @@ document.getElementById('activityForm').addEventListener('submit', async functio
 
         setTimeout(() => {
             statusDiv.classList.add('hidden');
+        }, 5000);
+    }
+});
+
+// ==========================================
+// 5. ROTINA SEMANAL (base do cálculo de ociosidade individual)
+// ==========================================
+document.getElementById('rotinaForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const btnSalvarRotina = document.getElementById('btnSalvarRotina');
+    const statusRotina = document.getElementById('statusRotina');
+
+    const diasMarcados = Array.from(document.querySelectorAll('input[name="diaDisponivel"]:checked'))
+        .map(input => input.value);
+
+    if (diasMarcados.length === 0) {
+        statusRotina.textContent = "Selecione ao menos um dia disponível.";
+        statusRotina.className = "feedback-box error";
+        statusRotina.classList.remove('hidden');
+        return;
+    }
+
+    const payload = {
+        action: "profile",
+        memberEmail: membroLogado,
+        diasDisponiveis: diasMarcados,
+        horasPorDia: parseFloat(document.getElementById('horasPorDia').value)
+    };
+
+    btnSalvarRotina.textContent = "Salvando...";
+    btnSalvarRotina.disabled = true;
+
+    try {
+        const resposta = await fetch(URL_APPS_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+
+        const resultado = await resposta.json();
+
+        if (!resultado || resultado.result !== 'success') {
+            throw new Error((resultado && resultado.message) || 'O servidor não confirmou o salvamento.');
+        }
+
+        statusRotina.textContent = "Rotina salva com sucesso.";
+        statusRotina.className = "feedback-box success";
+        statusRotina.classList.remove('hidden');
+
+    } catch (error) {
+        statusRotina.textContent = "Não foi possível salvar: " + error.message;
+        statusRotina.className = "feedback-box error";
+        statusRotina.classList.remove('hidden');
+    } finally {
+        btnSalvarRotina.textContent = "Salvar Minha Rotina";
+        btnSalvarRotina.disabled = false;
+
+        setTimeout(() => {
+            statusRotina.classList.add('hidden');
         }, 5000);
     }
 });
