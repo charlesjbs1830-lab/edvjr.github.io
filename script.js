@@ -4,6 +4,7 @@
 const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzjY9CKxj_zorES0VldGOsQHel21q0qIEMZNFXZa2HjJL8R3dLueiLQQB3dT9sWd9TOwA/exec";
 const CHAVE_SESSAO = 'kamiclock_sessao_email';
 let membroLogado = null;
+let historicoSessao = [];
 
 // Matriz de Controle de Acesso Estrito (Whitelist)
 const membrosAutorizados = {
@@ -88,8 +89,6 @@ document.getElementById('btnLogout').addEventListener('click', function() {
 // 3. HISTÓRICO LOCAL DA SESSÃO (feedback visual apenas —
 //    a fonte de verdade continua sendo a planilha, via Apps Script)
 // ==========================================
-let historicoSessao = [];
-
 function renderHistorico() {
     const lista = document.getElementById('listaHistorico');
     if (!lista) return;
@@ -159,8 +158,8 @@ document.getElementById('activityForm').addEventListener('submit', async functio
 
         const resultado = await resposta.json();
 
-        if (!resultado || resultado.success !== true) {
-            throw new Error((resultado && resultado.error) || 'O servidor não confirmou o salvamento.');
+        if (!resultado || resultado.result !== 'success') {
+            throw new Error((resultado && resultado.message) || 'O servidor não confirmou o salvamento.');
         }
 
         statusDiv.textContent = "Registro enviado com sucesso.";
