@@ -94,6 +94,35 @@
                 </div>
             </section>
 
+            <!-- Minha Rotina Semanal (base do cálculo de ociosidade individual) -->
+            <section id="rotinaSection" class="card-institutional hidden">
+                <div class="card-header-custom">
+                    <h2>Minha Rotina Semanal</h2>
+                    <p>Declare os dias e horas que você costuma se dedicar à EDV Jr. Isso define sua meta individual — não existe meta fixa igual pra todo mundo, já que cada um tem estágio, faculdade e disponibilidade diferentes.</p>
+                </div>
+                <form id="rotinaForm">
+                    <div class="form-group">
+                        <label>Dias disponíveis</label>
+                        <div class="dias-semana-grid">
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Seg"> Seg</label>
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Ter"> Ter</label>
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Qua"> Qua</label>
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Qui"> Qui</label>
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Sex"> Sex</label>
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Sáb"> Sáb</label>
+                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Dom"> Dom</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="horasPorDia">Horas dedicadas em cada dia disponível</label>
+                        <input type="number" id="horasPorDia" min="0.5" step="0.5" required placeholder="Ex: 3">
+                    </div>
+                    <button type="submit" id="btnSalvarRotina" class="btn-primary-custom">Salvar Minha Rotina</button>
+                </form>
+                <div id="statusRotina" class="hidden feedback-box"></div>
+                <p class="rotina-nota">Sua rotina mudou (ex: começou um estágio)? Preencha de novo — a EDV Jr. guarda o histórico, então os meses anteriores continuam sendo calculados com a rotina que valia naquela época.</p>
+            </section>
+
         </div>
     </main>
 
