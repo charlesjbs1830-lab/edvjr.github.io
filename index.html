@@ -3,129 +3,601 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kamiclock | Painel de Produtividade</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>EDV Prospector - Radar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tratamento de Erros Isolado -->
+    <script>
+        window.onerror = function(msg, url, lineNo) {
+            const errDiv = document.getElementById('erroGlobal');
+            if(errDiv) {
+                errDiv.innerHTML = "❌ ERRO CRÍTICO JS na linha " + lineNo + ": " + msg;
+                errDiv.style.display = "block";
+            } else {
+                alert("ERRO JS: " + msg);
+            }
+            return false;
+        };
+    </script>
+    
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .tab-active { background-color: #eff6ff; color: #2563eb; font-weight: bold; border-left: 4px solid #2563eb; }
+    </style>
 </head>
-<body>
-    <header class="site-header">
-        <div class="nav-container">
-            <div class="logo-area">
-                <span class="logo-text">EDV <small>SERVIÇOS JURÍDICOS</small></span>
-            </div>
-            <nav class="nav-links">
-                <a href="#" class="active-nav">Painel Kamiclock</a>
-            </nav>
+<body class="flex h-screen text-slate-800 overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col z-10 shadow-2xl">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-xl font-bold tracking-tight"><i class="fa-solid fa-registered mr-2 text-blue-500"></i> EDV Marcas</h1>
         </div>
-    </header>
+        <nav class="flex-1 py-6 space-y-1">
+            <a href="#" class="block px-6 py-3 tab-active"><i class="fa-solid fa-satellite-dish w-6 text-center"></i> Radar (Scraper)</a>
+        </nav>
+    </aside>
 
-    <main class="main-body">
-        <div class="container-central">
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50">
+        
+        <header class="p-8 pb-4 border-b bg-white relative">
+            <h2 class="text-3xl font-bold text-slate-800">O Radar</h2>
+            <p class="text-slate-500 mt-2 text-lg">Busca avançada no Instagram, LinkedIn e Facebook de empresas locais.</p>
+            <div id="erroGlobal" class="hidden absolute top-4 right-4 bg-red-100 text-red-700 p-4 rounded border border-red-400 font-bold shadow"></div>
+        </header>
 
-            <!-- Tela de Login / Autenticação -->
-            <section id="loginSection" class="card-institutional">
-                <div class="card-header-custom">
-                    <h2>Autenticação de Membro</h2>
-                    <p>Informe seu e-mail corporativo para acessar o painel de registro.</p>
-                </div>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="emailMembro">E-mail Google Workspace</label>
-                        <input type="email" id="emailMembro" required placeholder="membro@edvjr.com.br">
-                    </div>
-                    <p id="loginError" class="field-error hidden"></p>
-                    <button type="submit" class="btn-primary-custom">Autenticar e Sincronizar</button>
-                </form>
-            </section>
-
-            <!-- Painel Principal de Lançamento (Oculto até autenticação) -->
-            <section id="dashboardSection" class="card-institutional hidden">
-                <div class="user-top-bar">
+        <div class="flex-1 overflow-y-auto px-8 py-6">
+            <!-- Radar Input -->
+            <div class="glass-card rounded-xl p-6 mb-6 border-t-4 border-blue-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <h2>Registro de Produtividade</h2>
-                        <p id="welcomeUser" class="subtext-user">Sincronizado com: </p>
-                    </div>
-                    <button id="btnLogout" class="btn-secundario-custom">Desconectar</button>
-                </div>
-
-                <form id="activityForm">
-                    <div class="form-group">
-                        <label for="setor">Setor de Atuação</label>
-                        <select id="setor" required>
-                            <option value="">Selecione o setor...</option>
-                            <option value="Comercial">Comercial</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Projetos">Projetos</option>
-                            <option value="VPGG/Financeiro">VPGG/Financeiro</option>
-                            <option value="VPGG/Gestão de Pessoas">VPGG/Gestão de Pessoas</option>
-                            <option value="Diretoria/Projetos">Diretoria/Projetos</option>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Segmento / Nicho</label>
+                        <select id="nichoInput" class="w-full border border-slate-300 rounded-lg px-4 py-3 text-base bg-white">
+                            <option value="" selected disabled>Selecione o segmento...</option>
+                            <optgroup label="Saúde e Bem-estar">
+                                <option value="Clínica de Estética">Clínica de Estética</option>
+                                <option value="Academia">Academia / Estúdio Fitness</option>
+                                <option value="Personal Trainer">Personal Trainer</option>
+                                <option value="Nutricionista">Nutricionista</option>
+                                <option value="Clínica Odontológica">Clínica Odontológica</option>
+                                <option value="Clínica Médica">Clínica Médica</option>
+                                <option value="Clínica de Fisioterapia">Fisioterapia</option>
+                                <option value="Clínica de Psicologia">Psicologia / Terapia</option>
+                                <option value="Farmácia de Manipulação">Farmácia de Manipulação</option>
+                                <option value="Ótica">Ótica</option>
+                            </optgroup>
+                            <optgroup label="Beleza e Moda">
+                                <option value="Salão de Beleza">Salão de Beleza</option>
+                                <option value="Barbearia">Barbearia</option>
+                                <option value="Loja de Roupas">Loja de Roupas / Moda</option>
+                                <option value="Loja de Calçados">Loja de Calçados</option>
+                                <option value="Semijoias">Joalheria / Semijoias</option>
+                            </optgroup>
+                            <optgroup label="Alimentação">
+                                <option value="Restaurante">Restaurante</option>
+                                <option value="Hamburgueria">Hamburgueria</option>
+                                <option value="Pizzaria">Pizzaria</option>
+                                <option value="Confeitaria">Confeitaria / Doceria</option>
+                                <option value="Cafeteria">Cafeteria</option>
+                            </optgroup>
+                            <optgroup label="Serviços Profissionais">
+                                <option value="Escritório de Advocacia">Escritório de Advocacia</option>
+                                <option value="Escritório de Contabilidade">Contabilidade</option>
+                                <option value="Consultoria Empresarial">Consultoria Empresarial</option>
+                                <option value="Escritório de Arquitetura">Arquitetura</option>
+                                <option value="Agência de Marketing Digital">Marketing Digital / Agência</option>
+                            </optgroup>
+                            <optgroup label="Comércio e Imóveis">
+                                <option value="Imobiliária">Imobiliária</option>
+                                <option value="Construtora">Construtora / Reforma</option>
+                                <option value="Loja de Eletrônicos">Loja de Eletrônicos</option>
+                                <option value="Papelaria">Papelaria / Gráfica</option>
+                                <option value="Floricultura">Floricultura</option>
+                                <option value="Loja Virtual">E-commerce / Loja Virtual</option>
+                            </optgroup>
+                            <optgroup label="Pet e Veterinária">
+                                <option value="Pet Shop">Pet Shop</option>
+                                <option value="Clínica Veterinária">Clínica Veterinária</option>
+                            </optgroup>
+                            <optgroup label="Educação e Tecnologia">
+                                <option value="Escola de Idiomas">Escola de Idiomas</option>
+                                <option value="Curso Livre">Escola / Curso Livre</option>
+                                <option value="Startup de Tecnologia">Tecnologia / Software</option>
+                            </optgroup>
+                            <optgroup label="Turismo, Eventos e Automotivo">
+                                <option value="Pousada">Hotel / Pousada</option>
+                                <option value="Buffet de Festas">Buffet / Eventos</option>
+                                <option value="Oficina Mecânica">Autopeças / Oficina Mecânica</option>
+                                <option value="Concessionária">Concessionária de Veículos</option>
+                            </optgroup>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label for="descricaoServico">Descrição Analítica do Serviço</label>
-                        <textarea id="descricaoServico" rows="4" required placeholder="Detalhe a atividade executada..."></textarea>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Estado</label>
+                        <select id="estadoInput" class="w-full border border-slate-300 rounded-lg px-4 py-3 text-base bg-white">
+                            <option value="" selected disabled>Selecione o estado...</option>
+                            <option value="Acre">Acre</option>
+                            <option value="Alagoas">Alagoas</option>
+                            <option value="Amapá">Amapá</option>
+                            <option value="Amazonas">Amazonas</option>
+                            <option value="Bahia">Bahia</option>
+                            <option value="Ceará">Ceará</option>
+                            <option value="Distrito Federal">Distrito Federal</option>
+                            <option value="Espírito Santo">Espírito Santo</option>
+                            <option value="Goiás">Goiás</option>
+                            <option value="Maranhão">Maranhão</option>
+                            <option value="Mato Grosso">Mato Grosso</option>
+                            <option value="Mato Grosso do Sul">Mato Grosso do Sul</option>
+                            <option value="Minas Gerais">Minas Gerais</option>
+                            <option value="Pará">Pará</option>
+                            <option value="Paraíba">Paraíba</option>
+                            <option value="Paraná">Paraná</option>
+                            <option value="Pernambuco">Pernambuco</option>
+                            <option value="Piauí">Piauí</option>
+                            <option value="Rio de Janeiro">Rio de Janeiro</option>
+                            <option value="Rio Grande do Norte">Rio Grande do Norte</option>
+                            <option value="Rio Grande do Sul">Rio Grande do Sul</option>
+                            <option value="Rondônia">Rondônia</option>
+                            <option value="Roraima">Roraima</option>
+                            <option value="Santa Catarina">Santa Catarina</option>
+                            <option value="São Paulo">São Paulo</option>
+                            <option value="Sergipe">Sergipe</option>
+                            <option value="Tocantins">Tocantins</option>
+                        </select>
                     </div>
-
-                    <div class="form-grid-tempo">
-                        <div class="form-group">
-                            <label for="tempoDedicado">Tempo Dedicado</label>
-                            <input type="number" id="tempoDedicado" min="1" required placeholder="Ex: 90">
-                        </div>
-                        <div class="form-group">
-                            <label for="unidadeTempo">Unidade</label>
-                            <select id="unidadeTempo" required>
-                                <option value="minutos">Minutos</option>
-                                <option value="horas">Horas</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btnSalvar" class="btn-primary-custom">Registrar Atividade no Banco</button>
-                </form>
-
-                <div id="statusFeedback" class="hidden feedback-box"></div>
-
-                <div class="historico-area">
-                    <h3>Últimos registros nesta sessão</h3>
-                    <ul id="listaHistorico" class="lista-historico"></ul>
                 </div>
-            </section>
-
-            <!-- Minha Rotina Semanal (base do cálculo de ociosidade individual) -->
-            <section id="rotinaSection" class="card-institutional hidden">
-                <div class="card-header-custom">
-                    <h2>Minha Rotina Semanal</h2>
-                    <p>Declare os dias e horas que você costuma se dedicar à EDV Jr. Isso define sua meta individual — não existe meta fixa igual pra todo mundo, já que cada um tem estágio, faculdade e disponibilidade diferentes.</p>
+                <div class="mt-4">
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">Cidade (opcional)</label>
+                    <input type="text" id="cidadeOpcionalInput" placeholder="Ex: Vitória — ativa a triangulação via mapa (OpenStreetMap)" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm">
+                    <p class="text-xs text-slate-400 mt-1">Se preenchida e o segmento tiver mapeamento no mapa, o Radar primeiro localiza nomes reais de estabelecimentos na cidade e só depois busca cada um no Instagram/LinkedIn/Facebook — mais preciso, mas consome mais cota da Tavily (até 8 buscas extra por vez, em vez de 1). Deixe em branco para o comportamento padrão.</p>
                 </div>
-                <form id="rotinaForm">
-                    <div class="form-group">
-                        <label>Dias disponíveis</label>
-                        <div class="dias-semana-grid">
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Seg"> Seg</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Ter"> Ter</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Qua"> Qua</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Qui"> Qui</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Sex"> Sex</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Sáb"> Sáb</label>
-                            <label class="dia-checkbox"><input type="checkbox" name="diaDisponivel" value="Dom"> Dom</label>
+                <button onclick="rodarRadar()" id="btnRodarRadar" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold shadow transition">
+                    <i class="fa-solid fa-play mr-2"></i> INICIAR RADAR
+                </button>
+                <div id="loadingRadar" class="mt-3 font-medium hidden"></div>
+                <div id="statusTriagemFiscal" class="mt-2 text-xs text-slate-500"></div>
+
+                <!-- Painel de Diagnóstico (temporário, para descobrir por que o Radar não acha leads) -->
+                <div id="debugPanel" class="hidden mt-4 border border-amber-300 bg-amber-50 rounded-lg p-4 text-sm">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('debugBody').classList.toggle('hidden')">
+                        <span class="font-bold text-amber-800"><i class="fa-solid fa-bug mr-2"></i>Diagnóstico da última busca</span>
+                        <span class="text-amber-600 text-xs">clique para expandir/recolher</span>
+                    </div>
+                    <div id="debugBody" class="mt-3 space-y-2">
+                        <div id="debugResumo" class="font-mono text-xs whitespace-pre-wrap"></div>
+                        <details>
+                            <summary class="cursor-pointer text-amber-700 font-medium">Ver resposta bruta da API (JSON, primeiros 3000 caracteres)</summary>
+                            <pre id="debugHtml" class="mt-2 max-h-64 overflow-y-auto bg-white border border-amber-200 rounded p-2 text-xs whitespace-pre-wrap"></pre>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Leads Gerados -->
+            <div id="leadsContainer" class="hidden">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Coluna Esquerda -->
+                    <div class="xl:col-span-1 glass-card rounded-xl h-[500px] flex flex-col">
+                        <div class="bg-slate-100 p-3 border-b text-sm font-semibold flex justify-between items-center">
+                            <span>Empresas Encontradas</span><span id="contadorLeads">0</span>
+                        </div>
+                        <label class="flex items-center gap-2 px-3 py-2 text-xs text-slate-600 border-b bg-slate-50 cursor-pointer">
+                            <input type="checkbox" id="filtroRiscoAlto" checked onchange="renderLeads()">
+                            Ocultar risco alto de marca já registrada
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-2 text-xs text-slate-600 border-b bg-slate-50 cursor-pointer">
+                            <input type="checkbox" id="filtroDescartadoFiscal" checked onchange="renderLeads()">
+                            Ocultar descartados na triagem fiscal (CNPJ)
+                        </label>
+                        <ul id="listaLeads" class="overflow-y-auto flex-1 divide-y divide-slate-100"></ul>
+                    </div>
+                    <!-- Coluna Direita -->
+                    <div id="painelAcao" class="xl:col-span-2 glass-card rounded-xl p-8 hidden flex-col">
+                        <h2 id="leadNome" class="text-2xl font-bold">Empresa</h2>
+                        <a id="leadInsta" href="#" target="_blank" class="text-blue-600 font-medium mb-6">@insta</a>
+                        <div id="triagemFiscalContainer" class="mb-4"></div>
+                        <div id="auditoriaSocioContainer" class="mb-4"></div>
+                        
+                        <button onclick="checarINPI()" class="bg-slate-800 text-white px-4 py-2 rounded font-medium mb-4 w-48">1. Checar INPI</button>
+                        <button onclick="verificarEndereco()" class="bg-emerald-700 text-white px-4 py-2 rounded font-medium mb-4 w-56">
+                            <i class="fa-solid fa-map-location-dot mr-1"></i> Verificar endereço
+                        </button>
+                        <div id="resultadoEndereco" class="hidden mb-4 text-sm bg-emerald-50 border border-emerald-200 rounded-lg p-3"></div>
+                        <button onclick="gerarCopy()" class="bg-blue-600 text-white px-4 py-2 rounded font-medium w-48">2. Gerar Mensagem (IA)</button>
+                        
+                        <p id="loadingGroq" class="text-blue-600 text-sm hidden mt-3"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> A IA está pensando...</p>
+                        
+                        <div id="copyResult" class="hidden flex-col mt-4">
+                            <p id="argumentoVenda" class="text-sm bg-blue-50 p-3 rounded border border-blue-100 mb-4"></p>
+                            <textarea id="copyInstagram" class="w-full h-32 p-4 border border-blue-200 rounded-lg text-sm bg-white"></textarea>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="horasPorDia">Horas dedicadas em cada dia disponível</label>
-                        <input type="number" id="horasPorDia" min="0.5" step="0.5" required placeholder="Ex: 3">
-                    </div>
-                    <button type="submit" id="btnSalvarRotina" class="btn-primary-custom">Salvar Minha Rotina</button>
-                </form>
-                <div id="statusRotina" class="hidden feedback-box"></div>
-                <p class="rotina-nota">Sua rotina mudou (ex: começou um estágio)? Preencha de novo — a EDV Jr. guarda o histórico, então os meses anteriores continuam sendo calculados com a rotina que valia naquela época.</p>
-            </section>
-
+                </div>
+            </div>
         </div>
     </main>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <!-- JS Principal -->
+    <script>
+        const GROQ_API_KEY = "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";
+        
+        // Coloque aqui o link do seu novo servidor Google Apps Script
+        const GOOGLE_PROXY_URL = "https://script.google.com/macros/s/AKfycbxpuh_qP_ztGKRpM2p31fLOf7ukofiut_9fA2ZPVnwI6OGviPXgBBpuv7UMR_H7Chb6/exec";
+
+        let currentLeads = [];
+        let selectedLead = null;
+
+        const ETAPAS_VENDA = ['Frio', 'Sócio Contatado', 'Em Negociação', 'Fechado', 'Perdido'];
+        const CHAVE_PIPELINE = 'edv_pipeline';
+
+        // ------------------------------------------------------------------
+        // MÓDULO DE PERSISTÊNCIA (localStorage)
+        // ------------------------------------------------------------------
+        // Guarda o array de leads (com triagem fiscal, sócio e copy gerada já
+        // inclusos) no navegador, para sobreviver a um F5 acidental. Isso é
+        // por navegador/dispositivo — não é um banco compartilhado entre
+        // membros da equipe, e uma nova busca no Radar substitui o que
+        // estava salvo (não acumula histórico entre buscas diferentes).
+        function salvarEstado() {
+            try {
+                localStorage.setItem(CHAVE_PIPELINE, JSON.stringify(currentLeads));
+            } catch (e) {
+                console.warn('[EDV Prospector] Não foi possível salvar o estado local:', e.message);
+            }
+        }
+
+        function carregarEstado() {
+            try {
+                const salvo = localStorage.getItem(CHAVE_PIPELINE);
+                if (!salvo) return;
+                const leads = JSON.parse(salvo);
+                if (!Array.isArray(leads) || leads.length === 0) return;
+
+                currentLeads = leads;
+                renderLeads();
+                document.getElementById('leadsContainer').classList.remove('hidden');
+            } catch (e) {
+                console.warn('[EDV Prospector] Não foi possível restaurar o estado local:', e.message);
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // MÓDULO DE TRIANGULAÇÃO GEOESPACIAL (Overpass API / OpenStreetMap)
+        // ------------------------------------------------------------------
+        // Traduz nosso "Segmento" (texto livre em português) para tags reais
+        // do OpenStreetMap (padronizadas, em inglês). Segmentos sem mapeamento
+        // aqui simplesmente pulam a triangulação e caem no fluxo padrão —
+        // nunca quebram a busca.
+        const NICHO_PARA_TAG_OSM = {
+            'Clínica de Estética': '["shop"="beauty"]',
+            'Academia': '["leisure"="fitness_centre"]',
+            'Clínica Odontológica': '["amenity"="dentist"]',
+            'Clínica Médica': '["amenity"="clinic"]',
+            'Clínica de Fisioterapia': '["healthcare"="physiotherapist"]',
+            'Clínica de Psicologia': '["healthcare"="psychotherapist"]',
+            'Farmácia de Manipulação': '["amenity"="pharmacy"]',
+            'Ótica': '["shop"="optician"]',
+            'Salão de Beleza': '["shop"="hairdresser"]',
+            'Barbearia': '["shop"="hairdresser"]',
+            'Loja de Roupas': '["shop"="clothes"]',
+            'Loja de Calçados': '["shop"="shoes"]',
+            'Semijoias': '["shop"="jewelry"]',
+            'Restaurante': '["amenity"="restaurant"]',
+            'Hamburgueria': '["amenity"="fast_food"]',
+            'Pizzaria': '["amenity"="restaurant"]',
+            'Confeitaria': '["shop"="pastry"]',
+            'Cafeteria': '["amenity"="cafe"]',
+            'Escritório de Advocacia': '["office"="lawyer"]',
+            'Escritório de Contabilidade': '["office"="accountant"]',
+            'Consultoria Empresarial': '["office"="consulting"]',
+            'Escritório de Arquitetura': '["office"="architect"]',
+            'Agência de Marketing Digital': '["office"="advertising_agency"]',
+            'Imobiliária': '["office"="estate_agent"]',
+            'Loja de Eletrônicos': '["shop"="electronics"]',
+            'Papelaria': '["shop"="stationery"]',
+            'Floricultura': '["shop"="florist"]',
+            'Pet Shop': '["shop"="pet"]',
+            'Clínica Veterinária': '["amenity"="veterinary"]',
+            'Escola de Idiomas': '["amenity"="language_school"]',
+            'Pousada': '["tourism"="guest_house"]',
+            'Oficina Mecânica': '["shop"="car_repair"]',
+            'Concessionária': '["shop"="car"]'
+            // Segmentos sem equivalente físico claro no OSM (Personal Trainer,
+            // Nutricionista, Construtora, Curso Livre, Startup de Tecnologia,
+            // Buffet de Festas, Loja Virtual) ficam de fora de propósito —
+            // caem no fluxo padrão (Tavily direto) em vez de dar 0 resultado.
+        };
+
+        const MAX_NOMES_TRIANGULACAO = 8; // limite de créditos Tavily extras por busca
+
+        // Busca nomes reais de estabelecimentos no OpenStreetMap, restritos à
+        // cidade dentro do estado selecionado (evita colisão entre cidades
+        // homônimas de estados diferentes). Retorna null se não der pra
+        // triangular (sem mapeamento de tag, sem área encontrada, ou erro) —
+        // nunca lança exceção para quem chamou.
+        async function buscarNomesViaOverpass(nicho, cidade, estado) {
+            const filtroTag = NICHO_PARA_TAG_OSM[nicho];
+            if (!filtroTag) return null;
+
+            const query = `[out:json][timeout:25];
+area["name"="${estado}"]["admin_level"="4"]->.estadoArea;
+area["name"="${cidade}"]["admin_level"="8"](area.estadoArea)->.searchArea;
+(
+  node${filtroTag}(area.searchArea);
+);
+out 20;`;
+
+            try {
+                const resp = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'data=' + encodeURIComponent(query)
+                });
+                if (!resp.ok) return null;
+
+                const dados = await resp.json();
+                const nomes = new Set();
+                (dados.elements || []).forEach(el => {
+                    const nome = el.tags && el.tags.name;
+                    if (nome && nome.trim().length > 1) nomes.add(nome.trim());
+                });
+                return Array.from(nomes).slice(0, MAX_NOMES_TRIANGULACAO);
+            } catch (e) {
+                console.warn('[EDV Prospector] Overpass falhou, seguindo sem triangulação:', e.message);
+                return null;
+            }
+        }
+
+        // Dispara uma busca na Tavily (via nosso proxy) para um nome exato de
+        // estabelecimento, em vez do par Segmento+Estado genérico.
+        async function buscarLeadsPorNomeExato(nome) {
+            const query = `"${nome}" Brasil`;
+            const fetchUrl = `${GOOGLE_PROXY_URL}?q=${encodeURIComponent(query)}`;
+            const response = await fetch(fetchUrl);
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            return data;
+        }
+
+        async function rodarRadar() {
+            const nicho = document.getElementById('nichoInput').value;
+            const estado = document.getElementById('estadoInput').value;
+            const cidade = document.getElementById('cidadeOpcionalInput').value.trim();
+            const loadEl = document.getElementById('loadingRadar');
+
+            if (!nicho || !estado) {
+                loadEl.className = "text-red-600 mt-3 font-bold";
+                loadEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i> Selecione o Segmento e o Estado antes de iniciar o Radar.';
+                loadEl.style.display = "block";
+                return;
+            }
+
+            if(GOOGLE_PROXY_URL === "SEU_LINK_AQUI") {
+                loadEl.className = "text-red-600 mt-3 font-bold";
+                loadEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i> Você precisa configurar o seu Servidor Privado do Google primeiro!';
+                loadEl.style.display = "block";
+                return;
+            }
+
+            document.getElementById('leadsContainer').classList.add('hidden');
+            document.getElementById('painelAcao').classList.add('hidden');
+
+            let nomesTriangulados = null;
+            if (cidade) {
+                loadEl.className = "text-blue-600 mt-3 font-medium";
+                loadEl.innerHTML = '<i class="fa-solid fa-map-location-dot fa-spin mr-2"></i> Localizando estabelecimentos reais em ' + cidade + ' via OpenStreetMap...';
+                loadEl.style.display = "block";
+                nomesTriangulados = await buscarNomesViaOverpass(nicho, cidade, estado);
+            }
+
+            try {
+                currentLeads = [];
+
+                if (nomesTriangulados && nomesTriangulados.length > 0) {
+                    // Caminho triangulado: 1 busca na Tavily por nome exato encontrado no mapa.
+                    for (let i = 0; i < nomesTriangulados.length; i++) {
+                        const nomeAlvo = nomesTriangulados[i];
+                        loadEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Triangulando "' + nomeAlvo + '" (' + (i + 1) + '/' + nomesTriangulados.length + ')...';
+
+                        const data = await buscarLeadsPorNomeExato(nomeAlvo);
+                        diagnosticarResposta('"' + nomeAlvo + '" Brasil', data);
+                        const items = data.items || [];
+                        items.forEach(item => {
+                            const lead = extrairLeadDoItem(item, estado);
+                            if (lead && !currentLeads.find(l => l.url === lead.url)) {
+                                currentLeads.push(lead);
+                            }
+                        });
+                    }
+                } else {
+                    // Caminho padrão: 1 busca genérica Segmento + Estado (1 crédito Tavily).
+                    if (cidade && !nomesTriangulados) {
+                        console.info('[EDV Prospector] Triangulação via mapa não disponível para "' + nicho + '" ou cidade não encontrada — usando busca padrão.');
+                    }
+
+                    loadEl.className = "text-blue-600 mt-3 font-medium";
+                    loadEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Buscando no Instagram, LinkedIn e Facebook...';
+                    loadEl.style.display = "block";
+
+                    // O mecanismo de busca já está restrito a instagram.com, linkedin.com e
+                    // facebook.com. Sem aspas: deixamos o algoritmo de relevância da Tavily
+                    // considerar o estado como contexto, em vez de exigir a palavra exata no texto.
+                    const query = `${nicho} ${estado} Brasil`;
+                    const fetchUrl = `${GOOGLE_PROXY_URL}?q=${encodeURIComponent(query)}`;
+                    const response = await fetch(fetchUrl);
+                    const data = await response.json();
+
+                    diagnosticarResposta(query, data);
+                    if (data.error) throw new Error(data.error);
+
+                    const items = data.items || [];
+                    items.forEach(item => {
+                        const lead = extrairLeadDoItem(item, estado);
+                        if (lead && !currentLeads.find(l => l.url === lead.url)) {
+                            currentLeads.push(lead);
+                        }
+                    });
+                }
+
+                if (currentLeads.length > 0) {
+                    renderLeads();
+                    document.getElementById('leadsContainer').classList.remove('hidden');
+                    loadEl.style.display = "none";
+                    rodarTriagemFiscal(); // roda em segundo plano, não bloqueia a exibição dos leads
+                    salvarEstado();
+                } else {
+                    throw new Error("Busca finalizada, mas nenhuma conta comercial local encontrada.");
+                }
+            } catch (e) {
+                loadEl.className = "text-red-600 mt-3 font-bold";
+                loadEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i> Erro na extração: ' + e.message;
+            }
+        }
+
+        // Identifica de qual rede social veio o resultado e extrai um "handle" utilizável.
+        // Retorna null se o link não for de um perfil/página reconhecível (ex: post avulso, hashtag).
+        function extrairLeadDoItem(item, estadoSelecionado) {
+            const link = item.link || '';
+            let platform = null;
+            let handle = null;
+
+            if (link.includes('instagram.com/')) {
+                const m = link.match(/instagram\.com\/([a-zA-Z0-9_.]+)\/?$/);
+                if (m && !['p', 'explore', 'reel', 'stories', 'tags'].includes(m[1])) {
+                    platform = 'Instagram';
+                    handle = m[1];
+                }
+            } else if (link.includes('linkedin.com/')) {
+                const m = link.match(/linkedin\.com\/(?:company|in)\/([a-zA-Z0-9\-_.]+)/);
+                if (m) {
+                    platform = 'LinkedIn';
+                    handle = m[1];
+                }
+            } else if (link.includes('facebook.com/')) {
+                const m = link.match(/facebook\.com\/([a-zA-Z0-9.\-]+)\/?$/);
+                if (m && !['pages', 'profile.php', 'groups', 'events', 'people'].includes(m[1])) {
+                    platform = 'Facebook';
+                    handle = m[1];
+                }
+            }
+
+            if (!platform || !handle) return null;
+
+            let nome = (item.title || handle)
+                .split(' - ')[0].split(' | ')[0]
+                .replace(' no Instagram', '').replace(' | LinkedIn', '')
+                .trim();
+
+            const lead = { name: nome || handle, handle: handle, url: link, platform: platform, snippet: item.snippet || '' };
+            lead.risco = avaliarRiscoMarca(lead);
+            lead.localizacao = avaliarLocalizacao(lead, estadoSelecionado);
+            return lead;
+        }
+
+        /**
+         * TRIAGEM FISCAL VIA CNPJ (BrasilAPI)
+         * ------------------------------------------------------------------
+         * Extrai o CNPJ do texto do resultado (quando presente), consulta a
+         * BrasilAPI (pública, gratuita, sem chave — https://brasilapi.com.br)
+         * e aplica uma matriz de filtros heurísticos para priorizar empresas
+         * com maior probabilidade de ainda não terem marca registrada:
+         *   - Capital social entre R$5.000 e R$1.000.000
+         *   - Não é MEI (natureza jurídica 213-5)
+         *   - Fundada há no máximo 3 anos (ideal: 180 a 730 dias)
+         *   - Alerta separado se nome fantasia = razão social (risco de colisão)
+         *
+         * IMPORTANTE: isso é uma heurística de priorização, não uma prova de
+         * nada. Uma empresa "descartada" pode perfeitamente ainda não ter
+         * marca registrada — e uma "aprovada" pode já ter. Sempre confirme
+         * com o botão "Checar INPI" antes de decidir.
+         *
+         * A BrasilAPI tem CORS habilitado, então chamamos direto do navegador
+         * (sem passar pelo proxy do Apps Script) — evita gastar cota da Tavily
+         * à toa e reduz uma camada de latência. Rodamos em série com um delay
+         * de 500ms entre chamadas, para respeitar o uso justo do serviço.
+         */
+
+        const REGEX_CNPJ = /\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/;
+
+        function extrairCNPJDoTexto(texto) {
+            const match = String(texto || '').match(REGEX_CNPJ);
+            return match ? match[0] : null;
+        }
+
+        function avaliarTriagemFiscal(dados) {
+            const motivos = [];
+            let aprovado = true;
+
+            const capital = Number(dados.capital_social) || 0;
+            if (capital < 5000) { aprovado = false; motivos.push('Capital social abaixo de R$ 5.000 (indício de insolvência)'); }
+            if (capital > 1000000) { aprovado = false; motivos.push('Capital social acima de R$ 1.000.000 (provável já ter registro/jurídico próprio)'); }
+
+            const codigoNatureza = String(dados.codigo_natureza_juridica || '');
+            if (codigoNatureza.indexOf('213') === 0) { aprovado = false; motivos.push('MEI (natureza jurídica 213-5) — normalmente não prioriza registro de marca'); }
+
+            let diasFundacao = null;
+            if (dados.data_inicio_atividade) {
+                const dataFundacao = new Date(dados.data_inicio_atividade);
+                if (!isNaN(dataFundacao.getTime())) {
+                    diasFundacao = Math.floor((Date.now() - dataFundacao.getTime()) / 86400000);
+                    if (diasFundacao > 1095) { aprovado = false; motivos.push('Fundada há mais de 3 anos (~' + Math.floor(diasFundacao / 365) + ' anos) — maior chance de já ter marca registrada'); }
+                }
+            }
+
+            const nomeFantasia = (dados.nome_fantasia || '').trim().toLowerCase();
+            const razaoSocial = (dados.razao_social || '').trim().toLowerCase();
+            const colisaoNome = !nomeFantasia || nomeFantasia === razaoSocial;
+
+            return {
+                aprovado: aprovado,
+                motivos: motivos,
+                diasFundacao: diasFundacao,
+                faixaIdeal: diasFundacao !== null && diasFundacao >= 180 && diasFundacao <= 730,
+                colisaoNome: colisaoNome
+            };
+        }
+
+        // Encontra o sócio/administrador principal no QSA (Quadro de Sócios e
+        // Administradores) devolvido pela BrasilAPI. Prioriza quem tem
+        // "administrador" na qualificação (quem decide no dia a dia);
+        // se não achar, pega o primeiro "sócio" que aparecer.
+        function extrairNomeDoSocio(dados) {
+            const qsa = Array.isArray(dados.qsa) ? dados.qsa : [];
+            if (qsa.length === 0) return null;
+
+            const administrador = qsa.find(s => /s[óo]cio.*administrador/i.test(s.qualificacao_socio || ''));
+            if (administrador && administrador.nome_socio) return administrador.nome_socio.trim();
+
+            const socio = qsa.find(s => /s[óo]cio/i.test(s.qualificacao_socio || ''));
+            if (socio && socio.nome_socio) return socio.nome_socio.trim();
+
+            return null;
+        }
+
+        async function consultarCNPJParaLead(lead) {
+            const cnpjDigitos = lead.cnpj.replace(/\D/g, '');
+            try {
+                const resp = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + cnpjDigitos);
+                if (!resp.ok) {
+                    lead.triagemFiscal = { status: 'erro_consulta', detalhe: 'HTTP ' + resp.status };
+                    return;
+                }
+                const dados = await resp.json();
+                const avaliacao = avaliarTriagemFiscal(dados);
+                lead.dadosCNPJ = dados;
+                lead.nomeDoSocio = extrairNomeDoSocio(dados);
+                lead.triagemFiscal = Object.assign({ status: avaliacao.aprovado ? 'aprovado' : 'descartado' }, avaliacao);
+            } catch (e) {
+                lead.triagemFiscal = { status: 'erro_consulta', detalhe: e.message };
+            }
+        }
+
+        // Roda a triagem fiscal em série (com delay) para todos os leads da busca atual.
+        // Não quebra o fluxo se algum CNPJ faltar ou a consulta falhar — só marca o status.
+        async function rodarTriagemFiscal() {
+            const statusEl = document.getElementById('statusTriagemFiscal');
+            for (let i = 0; i < currentLeads.length; i++) {
+                const lead = currentLeads[i];
+                const cnpjEncontrado = extrairCNPJDoTexto((lead.snippet || '') + ' ' + (lead.name || ''));
