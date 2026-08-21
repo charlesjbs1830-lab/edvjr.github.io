@@ -5,6 +5,13 @@ const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbzjY9CKxj_zorES
 const CHAVE_SESSAO = 'kamiclock_sessao_email';
 let membroLogado = null;
 
+// Precisa ser declarada AQUI (antes de qualquer código que possa chamar
+// entrarComoMembro/renderHistorico) — se ficar mais abaixo no arquivo, a
+// restauração automática de sessão (mais adiante) tenta usá-la antes da
+// declaração ser executada, e isso quebra o script inteiro (Temporal Dead
+// Zone do "let"), impedindo até os outros botões da página de funcionar.
+let historicoSessao = [];
+
 // Matriz de Controle de Acesso Estrito (Whitelist)
 const membrosAutorizados = {
     "charles.junior@edvjr.com.br": "Charles",
@@ -88,8 +95,6 @@ document.getElementById('btnLogout').addEventListener('click', function() {
 // 3. HISTÓRICO LOCAL DA SESSÃO (feedback visual apenas —
 //    a fonte de verdade continua sendo a planilha, via Apps Script)
 // ==========================================
-let historicoSessao = [];
-
 function renderHistorico() {
     const lista = document.getElementById('listaHistorico');
     if (!lista) return;
